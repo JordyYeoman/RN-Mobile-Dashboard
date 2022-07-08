@@ -1,0 +1,207 @@
+/**
+ *
+ * @format
+ */
+
+import React, {useCallback, useEffect, useState} from 'react';
+import io from 'socket.io-client';
+import {
+  ActivityIndicator,
+  Button,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {signIn, signUp, signOut} from './components/auth/AuthMethods';
+import {themeColors} from './styles/theme';
+// import {signIn, signOut} from './components/AuthMethods';
+
+const socket = io('http://localhost:3000');
+
+function App() {
+  const [user, setUser] = useState<any>(null);
+  const [usernameInput, setUsernameInput] = useState<any>(null);
+  const [passwordInput, setPasswordInput] = useState<any>(null);
+  const [signInLoading, setIsSignInLoading] = useState<boolean>(false);
+  const [signUpLoading, setIsSignUpLoading] = useState<boolean>(false);
+  // Socketio tests
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [lastPong, setLastPong] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log('User', user);
+  }, [user]);
+
+  // handle socket shizz
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('Connected!');
+      setIsConnected(true);
+    });
+
+    socket.on('disconnect', () => {
+      setIsConnected(false);
+    });
+
+    socket.on('ping', () => {
+      console.log('ping received!');
+      setLastPong(new Date().toISOString());
+    });
+
+    socket.on('pong', () => {
+      setLastPong(new Date().toISOString());
+    });
+
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('pong');
+    };
+  }, []);
+
+  const sendPing = () => {
+    socket.emit('ping');
+  };
+
+  // handle sign in
+  const handleSignInPress = useCallback(async () => {
+    setIsSignInLoading(true);
+    let res = await signIn(usernameInput, passwordInput);
+    if (res?.user) {
+      setUser(res);
+      return;
+    }
+    setIsSignInLoading(false);
+  }, [usernameInput, passwordInput]);
+  // handle sign out
+  const handleSignOutPress = useCallback(async () => {
+    await signOut();
+    setUser(null);
+    setIsSignUpLoading(false);
+    setIsSignInLoading(false);
+  }, []);
+  // handle sign up
+  const handleSignUpPress = useCallback(async () => {
+    setIsSignUpLoading(true);
+    await signUp(usernameInput, passwordInput);
+    setIsSignUpLoading(false);
+  }, [usernameInput, passwordInput]);
+
+  return (
+    <SafeAreaView
+      style={{backgroundColor: themeColors.primary.backgroundColor}}>
+      <StatusBar />
+      <View style={styles.loginViewContainer}>
+        <View>
+          <Text>Connected: {'' + isConnected}</Text>
+          <Text>Last pong: {lastPong || '-'}</Text>
+          <Button title="Send ping" onPress={sendPing} />
+        </View>
+        <View>
+          {!user ? (
+            <View>
+              <View>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setUsernameInput}
+                  value={usernameInput}
+                  placeholder="username"
+                  keyboardType="default"
+                />
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setPasswordInput}
+                  value={passwordInput}
+                  placeholder="password"
+                  keyboardType="default"
+                />
+              </View>
+              <TouchableOpacity
+                style={styles.homeButton}
+                onPress={() => {
+                  handleSignInPress();
+                }}>
+                {signInLoading ? (
+                  <ActivityIndicator color={themeColors.primary.color} />
+                ) : (
+                  <Text style={styles.homeButtonText}>Sign In</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.homeButton}
+                onPress={() => {
+                  handleSignUpPress();
+                }}>
+                {signUpLoading ? (
+                  <ActivityIndicator color={themeColors.primary.color} />
+                ) : (
+                  <Text style={styles.homeButtonText}>Register</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <Text>Welcome {user?.email}</Text>
+              <TouchableOpacity
+                style={styles.homeButton}
+                onPress={() => {
+                  handleSignOutPress();
+                }}>
+                <Text style={styles.homeButtonText}>Sign Out</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+export default App;
+
+const styles = StyleSheet.create({
+  loginViewContainer: {
+    height: '100%',
+    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    backgroundColor: themeColors.primary.backgroundColor,
+  },
+  input: {
+    height: 55,
+    margin: 12,
+    borderWidth: 0.2,
+    width: 300,
+    color: '#000000',
+    fontSize: 16,
+    borderColor: themeColors.primary.border,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  homeButton: {
+    height: 55,
+    width: 300,
+    margin: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 5,
+    backgroundColor: themeColors.primary.secondaryBackgroundColor,
+  },
+  homeButtonText: {
+    color: '#FFF',
+    fontWeight: '600',
+    fontSize: 20,
+  },
+});
