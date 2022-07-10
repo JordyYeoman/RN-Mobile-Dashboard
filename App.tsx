@@ -31,7 +31,7 @@ function App() {
   // Socketio tests
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [lastPong, setLastPong] = useState<string | null>(null);
-  const [lastRacePositions, setLastRacePositions] = useState({
+  const [lastRacePositions, setLastRacePositions] = useState<any | null>({
     racers: [
       {
         racer: {
@@ -65,7 +65,6 @@ function App() {
 
     socket.on('pong', (msg: any) => {
       setLastRacePositions(msg);
-      console.log('Updated positions: ', msg);
       setLastPong(new Date().toISOString());
     });
 
@@ -78,6 +77,9 @@ function App() {
 
   const sendPing = () => {
     socket.emit('ping', lastRacePositions);
+  };
+  const startRace = () => {
+    socket.emit('start', lastRacePositions);
   };
 
   // handle sign in
@@ -113,6 +115,7 @@ function App() {
           <Text>Connected: {'' + isConnected}</Text>
           <Text>Last pong: {lastPong || '-'}</Text>
           <Button title="Send ping" onPress={sendPing} />
+          <Button title="Start Race" onPress={startRace} />
         </View>
         <View>
           {!user ? (
@@ -166,7 +169,7 @@ function App() {
                 }}>
                 <Text style={styles.homeButtonText}>Sign Out</Text>
               </TouchableOpacity>
-              {lastRacePositions.racers.map(racer => (
+              {lastRacePositions?.racers?.map((racer: any) => (
                 <Box
                   offsetValue={racer?.racer?.currentXPos / 100}
                   key={Math.random() * 999}
