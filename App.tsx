@@ -31,22 +31,7 @@ function App() {
   // Socketio tests
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [lastPong, setLastPong] = useState<string | null>(null);
-  const [lastRacePositions, setLastRacePositions] = useState<any | null>({
-    racers: [
-      {
-        racer: {
-          currentXPos: 0,
-          currentYPos: 0,
-        },
-      },
-      {
-        racer: {
-          currentXPos: 0,
-          currentYPos: 0,
-        },
-      },
-    ],
-  });
+  const [lastRacePositions, setLastRacePositions] = useState<any | null>(null);
 
   useEffect(() => {
     // console.log('User', user);
@@ -65,6 +50,7 @@ function App() {
 
     socket.on('pong', (msg: any) => {
       setLastRacePositions(msg);
+      console.log('Messages recieved: ', msg);
       setLastPong(new Date().toISOString());
     });
 
@@ -75,11 +61,8 @@ function App() {
     };
   }, []);
 
-  const sendPing = () => {
-    socket.emit('ping', lastRacePositions);
-  };
   const startRace = () => {
-    socket.emit('start', lastRacePositions);
+    socket.emit('start');
   };
 
   // handle sign in
@@ -114,7 +97,6 @@ function App() {
         <View>
           <Text>Connected: {'' + isConnected}</Text>
           <Text>Last pong: {lastPong || '-'}</Text>
-          <Button title="Send ping" onPress={sendPing} />
           <Button title="Start Race" onPress={startRace} />
         </View>
         <View>
@@ -169,12 +151,13 @@ function App() {
                 }}>
                 <Text style={styles.homeButtonText}>Sign Out</Text>
               </TouchableOpacity>
-              {lastRacePositions?.racers?.map((racer: any) => (
-                <Box
-                  offsetValue={racer?.racer?.currentXPos / 100}
-                  key={Math.random() * 999}
-                />
-              ))}
+              {lastRacePositions &&
+                lastRacePositions?.racers?.map((racer: any) => (
+                  <Box
+                    offsetValue={racer?.currentXPos / 1000}
+                    key={Math.random() * 999}
+                  />
+                ))}
             </>
           )}
         </View>
