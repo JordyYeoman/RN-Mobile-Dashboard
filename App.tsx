@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import {signIn, signUp, signOut} from './components/auth/AuthMethods';
 import {themeColors} from './styles/theme';
-// import {signIn, signOut} from './components/AuthMethods';
+import Box from './components/racing/box';
 
 const socket = io('http://localhost:3000');
 
@@ -31,9 +31,25 @@ function App() {
   // Socketio tests
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [lastPong, setLastPong] = useState<string | null>(null);
+  const [lastRacePositions, setLastRacePositions] = useState({
+    racers: [
+      {
+        racer: {
+          currentXPos: 0,
+          currentYPos: 0,
+        },
+      },
+      {
+        racer: {
+          currentXPos: 0,
+          currentYPos: 0,
+        },
+      },
+    ],
+  });
 
   useEffect(() => {
-    console.log('User', user);
+    // console.log('User', user);
   }, [user]);
 
   // handle socket shizz
@@ -47,12 +63,9 @@ function App() {
       setIsConnected(false);
     });
 
-    socket.on('ping', () => {
-      console.log('ping received!');
-      setLastPong(new Date().toISOString());
-    });
-
-    socket.on('pong', () => {
+    socket.on('pong', (msg: any) => {
+      setLastRacePositions(msg);
+      console.log('Updated positions: ', msg);
       setLastPong(new Date().toISOString());
     });
 
@@ -64,7 +77,7 @@ function App() {
   }, []);
 
   const sendPing = () => {
-    socket.emit('ping');
+    socket.emit('ping', lastRacePositions);
   };
 
   // handle sign in
@@ -153,6 +166,12 @@ function App() {
                 }}>
                 <Text style={styles.homeButtonText}>Sign Out</Text>
               </TouchableOpacity>
+              {lastRacePositions.racers.map(racer => (
+                <Box
+                  offsetValue={racer?.racer?.currentXPos / 100}
+                  key={Math.random() * 999}
+                />
+              ))}
             </>
           )}
         </View>
