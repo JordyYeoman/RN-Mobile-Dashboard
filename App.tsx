@@ -98,7 +98,8 @@ function App() {
     setUser(null);
     setIsSignUpLoading(false);
     setIsSignInLoading(false);
-  }, []);
+    dispatch(setUserData(null));
+  }, [dispatch]);
   // handle sign up
   const handleSignUpPress = useCallback(async () => {
     setIsSignUpLoading(true);
