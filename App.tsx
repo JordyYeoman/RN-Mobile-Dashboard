@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Button,
   SafeAreaView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -19,6 +18,9 @@ import {
 import {signIn, signUp, signOut} from './components/auth/AuthMethods';
 import {themeColors} from './styles/theme';
 import Box from './components/racing/box';
+import Navbar from './components/layout/Navbar';
+import {useDispatch} from 'react-redux';
+import {setUserData} from './redux/features/counterSlice';
 
 const socket = io('http://localhost:3000');
 
@@ -32,6 +34,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [lastPong, setLastPong] = useState<string | null>(null);
   const [lastRacePositions, setLastRacePositions] = useState<any | null>(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // console.log('User', user);
@@ -65,23 +68,38 @@ function App() {
     socket.emit('start');
   };
 
+  type User = {
+    id: string;
+    name: string;
+    accountValue: number;
+  };
+
   // handle sign in
   const handleSignInPress = useCallback(async () => {
+    // Moved inside useCallback so it's not unnecessarily recreated
+    const demoData: User = {
+      id: '507idhabe1V312',
+      name: 'Jordy',
+      accountValue: 83124,
+    };
+
     setIsSignInLoading(true);
     let res = await signIn(usernameInput, passwordInput);
     if (res?.user) {
       setUser(res);
+      dispatch(setUserData(demoData));
       return;
     }
     setIsSignInLoading(false);
-  }, [usernameInput, passwordInput]);
+  }, [usernameInput, passwordInput, dispatch]);
   // handle sign out
   const handleSignOutPress = useCallback(async () => {
     await signOut();
     setUser(null);
     setIsSignUpLoading(false);
     setIsSignInLoading(false);
-  }, []);
+    dispatch(setUserData(null));
+  }, [dispatch]);
   // handle sign up
   const handleSignUpPress = useCallback(async () => {
     setIsSignUpLoading(true);
@@ -91,8 +109,9 @@ function App() {
 
   return (
     <SafeAreaView
-      style={{backgroundColor: themeColors.primary.backgroundColor}}>
-      <StatusBar />
+      style={{backgroundColor: themeColors.primary.secondaryBackgroundColor}}>
+      <Navbar />
+      {/* <StatusBar backgroundColor="#61dafb" barStyle={'dark-content'} /> */}
       <View style={styles.loginViewContainer}>
         <View>
           <Text>Connected: {'' + isConnected}</Text>
@@ -124,7 +143,9 @@ function App() {
                   handleSignInPress();
                 }}>
                 {signInLoading ? (
-                  <ActivityIndicator color={themeColors.primary.color} />
+                  <ActivityIndicator
+                    color={themeColors.primary.primaryTextColor}
+                  />
                 ) : (
                   <Text style={styles.homeButtonText}>Sign In</Text>
                 )}
@@ -135,7 +156,9 @@ function App() {
                   handleSignUpPress();
                 }}>
                 {signUpLoading ? (
-                  <ActivityIndicator color={themeColors.primary.color} />
+                  <ActivityIndicator
+                    color={themeColors.primary.primaryTextColor}
+                  />
                 ) : (
                   <Text style={styles.homeButtonText}>Register</Text>
                 )}
