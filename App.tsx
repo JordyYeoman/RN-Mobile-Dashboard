@@ -21,6 +21,8 @@ import Box from './components/racing/box';
 import Navbar from './components/layout/Navbar';
 import {useDispatch} from 'react-redux';
 import {setUserData} from './redux/features/counterSlice';
+import SpriteSheet from './components/utility/SpriteSheet';
+import RacingView from './components/racing/RacingView';
 
 const socket = io('http://localhost:3000');
 
@@ -113,12 +115,13 @@ function App() {
       <Navbar />
       {/* <StatusBar backgroundColor="#61dafb" barStyle={'dark-content'} /> */}
       <View style={styles.loginViewContainer}>
-        <View>
+        {/* <View>
           <Text>Connected: {'' + isConnected}</Text>
           <Text>Last pong: {lastPong || '-'}</Text>
           <Button title="Start Race" onPress={startRace} />
-        </View>
+        </View> */}
         <View>
+          <RacingView />
           {!user ? (
             <View>
               <View>
