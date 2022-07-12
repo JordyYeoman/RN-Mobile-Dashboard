@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-shadow */
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  Easing,
+  withTiming,
 } from 'react-native-reanimated';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 interface Animation {
   name: string;
@@ -67,26 +71,70 @@ interface State {
   loaded: boolean;
 }
 
-function SpriteSheetV2({defaultAnimation}: {defaultAnimation: string}) {
+// Setup
+const internalAnims: InternalAnimations = {
+  //   [defaultAnimation]: blankInternalAnimation,
+};
+
+// const defaultAnimation = defaultAnimation ?? animations[0].name;
+
+const SpriteSheetV2 = ({
+  defaultAnimation,
+  animations,
+}: {
+  defaultAnimation: string;
+  animations: Animation[];
+}) => {
   const offset = useSharedValue(0);
   const [time, setTime] = useState(0);
+  const [internalAnimations, setInternalAnimations] =
+    useState<InternalAnimations>(internalAnims);
+  const [currentAnimation, setCurrentAnimation] = useState(defaultAnimation);
+  const [height, setHeight] = useState(0);
+  const [width, setWidth] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const [autoplay, setAutoPlay] = useState(true);
 
+  useEffect(() => {}, []);
+
+  const play = ({name, loop, internalAnimations}: PlayConfig) => {
+    if (name) {
+      setCurrentAnimation(name);
+    }
+
+    const anim = internalAnimations?.[name ?? currentAnimation];
+    setTime(anim?.reverse ? anim.frames - 1 : 0);
+
+    if (loop) {
+      offset.value = withTiming(time, {
+        duration: 500,
+        easing: Easing.out(Easing.exp),
+      });
+    }
+  };
+
+  //
+  //
+  //   stop() {
+  //     this.state.time.stopAnimation();
+  //   }
+
+  //   reset = () => {
+  //     this.stop();
+  //     this.state.time.setValue(0);
+  //   };
+  //
   const animatedStyles = useAnimatedStyle(() => {
     return {
       transform: [{translateX: offset.value * 255}],
     };
   });
 
-  // Setup
-  const internalAnimations: InternalAnimations = {
-    [defaultAnimation]: blankInternalAnimation,
-  };
-
   return (
     <>
       <Animated.View style={[animatedStyles]} />
     </>
   );
-}
+};
 
 export default SpriteSheetV2;
