@@ -23,6 +23,7 @@ import {useDispatch} from 'react-redux';
 import {setUserData} from './redux/features/counterSlice';
 import SpriteSheet from './components/utility/SpriteSheet';
 import RacingView from './components/racing/RacingView';
+import Test from './components/racing/test';
 
 const socket = io('http://localhost:3000');
 
@@ -121,7 +122,8 @@ function App() {
           <Button title="Start Race" onPress={startRace} />
         </View> */}
         <View>
-          <RacingView />
+          <Test />
+          {/* <RacingView /> */}
           {!user ? (
             <View>
               <View>
