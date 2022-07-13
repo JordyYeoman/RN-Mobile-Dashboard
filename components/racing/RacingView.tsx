@@ -1,30 +1,45 @@
-import React, {useEffect, useRef} from 'react';
+import React, {LegacyRef, useEffect, useRef} from 'react';
 import {StyleSheet, View} from 'react-native';
-import SpriteSheet from '../utility/SpriteSheet';
+import {Rn_SpriteSheet} from '../utility/Rn_SpriteSheet';
 
-// Render n# racers
-const n = 4;
+// Render n racers
+const n = 1;
+const ACTION_PERIOD = 5000;
 
 function RacingView() {
-  const spriteRef = useRef<SpriteSheet | null>(null);
+  const spriteRef = useRef<Rn_SpriteSheet | null>(null);
+
+  const sparseAction = () => {
+    spriteRef.current && spriteRef.current.play({name: 'run'});
+  };
 
   useEffect(() => {
-    return () => {};
+    const interval = setInterval(() => {
+      sparseAction();
+    }, ACTION_PERIOD);
+    return () => {
+      let sprite = spriteRef;
+      clearInterval(interval);
+      sprite.current && sprite.current.stop();
+    };
   }, []);
 
   return (
     <View>
       {[...Array(n)].map((elem, index) => (
-        <SpriteSheet
+        <Rn_SpriteSheet
           key={index}
-          src={require('../../src/assets/horse-horizontal.png')}
-          ref={spriteRef}
+          src={require('../utility/horse-horizontal.webp')}
+          ref={spriteRef.current as LegacyRef<Rn_SpriteSheet>}
           cols={7}
           rows={1}
           rate={20}
           style={[styles.container]}
-          animations={[{name: 'run', row: 0, frames: 7, loop: true}]}
-          defaultAnimation={'run'}
+          anims={[
+            {name: 'idle', row: 0, frames: 2, loop: false},
+            {name: 'run', row: 0, frames: 7, loop: true},
+          ]}
+          defaultAnim={'run'}
         />
       ))}
     </View>
@@ -33,8 +48,9 @@ function RacingView() {
 
 const styles = StyleSheet.create({
   container: {
-    aspectRatio: 1.33,
-    width: 100,
+    aspectRatio: 1.4,
+    height: 120,
+    width: undefined,
   },
 });
 

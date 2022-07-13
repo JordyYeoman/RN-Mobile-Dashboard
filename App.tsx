@@ -123,7 +123,7 @@ function App() {
         </View> */}
         <View>
           <Test />
-          {/* <RacingView /> */}
+          <RacingView />
           {!user ? (
             <View>
               <View>
