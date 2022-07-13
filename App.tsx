@@ -24,6 +24,8 @@ import {setUserData} from './redux/features/counterSlice';
 import SpriteSheet from './components/utility/SpriteSheet';
 import RacingView from './components/racing/RacingView';
 import Test from './components/racing/test';
+import Joystick from './components/utility/joystick';
+import JoystickReader from './components/utility/JoystickReader';
 
 const socket = io('http://localhost:3000');
 
@@ -122,7 +124,8 @@ function App() {
           <Button title="Start Race" onPress={startRace} />
         </View> */}
         <View>
-          <Test />
+          <JoystickReader />
+          <Joystick joystickColor={'red'} joystickSize={100} />
           <RacingView />
           {!user ? (
             <View>

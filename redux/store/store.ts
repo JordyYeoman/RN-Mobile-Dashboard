@@ -1,9 +1,11 @@
 import {configureStore} from '@reduxjs/toolkit';
 import counterReducer from '../features/counterSlice';
+import joystickReducer from '../features/joystickSlice';
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
+    joystick: joystickReducer,
   },
 });
 

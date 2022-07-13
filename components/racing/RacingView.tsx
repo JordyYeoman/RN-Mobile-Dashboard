@@ -29,15 +29,15 @@ function RacingView() {
       {[...Array(n)].map((elem, index) => (
         <Rn_SpriteSheet
           key={index}
-          src={require('../utility/horse-horizontal.webp')}
+          src={require('../utility/deadRoboto.png')}
           ref={spriteRef.current as LegacyRef<Rn_SpriteSheet>}
-          cols={7}
+          cols={9}
           rows={1}
-          rate={20}
+          rate={15}
           style={[styles.container]}
           anims={[
             {name: 'idle', row: 0, frames: 2, loop: false},
-            {name: 'run', row: 0, frames: 7, loop: true},
+            {name: 'run', row: 0, frames: 9, loop: false},
           ]}
           defaultAnim={'run'}
         />
@@ -48,7 +48,7 @@ function RacingView() {
 
 const styles = StyleSheet.create({
   container: {
-    aspectRatio: 1.4,
+    aspectRatio: 1.05,
     height: 120,
     width: undefined,
   },
