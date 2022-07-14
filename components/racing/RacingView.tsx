@@ -26,22 +26,22 @@ function RacingView() {
   return (
     <View>
       <Rn_SpriteSheet
-        src={require('../utility/horse-horizontal.png')}
+        src={require('../utility/horse-horizontal.webp')}
         ref={spriteRef.current as LegacyRef<Rn_SpriteSheet>}
         cols={7}
         rows={1}
-        rate={10}
-        style={[styles.container]}
+        rate={20}
+        style={[styles.horse]}
         anims={[
           {
             name: 'run',
             row: 0,
-            frames: 3,
+            frames: 7,
             loop: true,
             // startFrame: 5,
           },
         ]}
-        defaultAnim={'walk-right'}
+        defaultAnim={'run'}
       />
       <Rn_SpriteSheet
         src={require('../utility/male_adventurer.png')}
@@ -81,6 +81,11 @@ function RacingView() {
 const styles = StyleSheet.create({
   container: {
     aspectRatio: 0.75,
+    height: 120,
+    width: undefined,
+  },
+  horse: {
+    aspectRatio: 1.4,
     height: 120,
     width: undefined,
   },
