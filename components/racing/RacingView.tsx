@@ -25,9 +25,23 @@ function RacingView() {
 
   return (
     <View>
-      <Image
-        style={{height: 100, width: '100%'}}
-        source={require('../utility/male_adventurer.png')}
+      <Rn_SpriteSheet
+        src={require('../utility/horse-horizontal.png')}
+        ref={spriteRef.current as LegacyRef<Rn_SpriteSheet>}
+        cols={7}
+        rows={1}
+        rate={10}
+        style={[styles.container]}
+        anims={[
+          {
+            name: 'run',
+            row: 0,
+            frames: 3,
+            loop: true,
+            // startFrame: 5,
+          },
+        ]}
+        defaultAnim={'walk-right'}
       />
       <Rn_SpriteSheet
         src={require('../utility/male_adventurer.png')}
