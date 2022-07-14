@@ -69,6 +69,9 @@ const Joystick: React.FC<Props> = props => {
           onDrag={(event, gestureState) => {
             getDirection(gestureState.dx, gestureState.dy);
           }}
+          onRelease={() => {
+            dispatch(setDirection(Direction.None));
+          }}
         />
       </View>
     </View>

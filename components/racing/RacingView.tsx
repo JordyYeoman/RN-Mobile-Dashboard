@@ -1,9 +1,8 @@
 import React, {LegacyRef, useEffect, useRef} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, View} from 'react-native';
 import {Rn_SpriteSheet} from '../utility/Rn_SpriteSheet';
 
 // Render n racers
-const n = 1;
 const ACTION_PERIOD = 5000;
 
 function RacingView() {
@@ -26,29 +25,48 @@ function RacingView() {
 
   return (
     <View>
-      {[...Array(n)].map((elem, index) => (
-        <Rn_SpriteSheet
-          key={index}
-          src={require('../utility/deadRoboto.png')}
-          ref={spriteRef.current as LegacyRef<Rn_SpriteSheet>}
-          cols={9}
-          rows={1}
-          rate={15}
-          style={[styles.container]}
-          anims={[
-            {name: 'idle', row: 0, frames: 2, loop: false},
-            {name: 'run', row: 0, frames: 9, loop: false},
-          ]}
-          defaultAnim={'run'}
-        />
-      ))}
+      <Image
+        style={{height: 100, width: '100%'}}
+        source={require('../utility/male_adventurer.png')}
+      />
+      <Rn_SpriteSheet
+        src={require('../utility/male_adventurer.png')}
+        ref={spriteRef.current as LegacyRef<Rn_SpriteSheet>}
+        cols={9}
+        rows={5}
+        rate={5}
+        style={[styles.container]}
+        anims={[
+          // {name: 'idle', row: 0, frames: 3, loop: true},
+          {
+            name: 'run',
+            row: 0,
+            frames: 3,
+            loop: true,
+            // startFrame: 5,
+          },
+          {name: 'jump', row: 0, frames: 4, loop: true, startFrame: -2},
+          {name: 'climb', row: 0, frames: 3, loop: true, startFrame: 3},
+          {name: 'run', row: 2, frames: 4, loop: true, startFrame: 4},
+          {
+            name: 'walk-left',
+            row: 4,
+            frames: 8,
+            loop: true,
+            startFrame: -1,
+            flipAnimation: true,
+          },
+          {name: 'walk-right', row: 4, frames: 9, loop: true, startFrame: -2},
+        ]}
+        defaultAnim={'walk-right'}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    aspectRatio: 1.05,
+    aspectRatio: 0.75,
     height: 120,
     width: undefined,
   },

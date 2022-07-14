@@ -14,8 +14,11 @@ interface Animation {
   name: string;
   row: number;
   frames?: number;
+  startFrame?: number;
+  endFrame?: number;
   loop?: boolean;
   reverse?: boolean;
+  flipAnimation?: boolean;
   onComplete?: () => void;
 }
 
@@ -56,6 +59,7 @@ interface Props {
   autoplay?: boolean;
   rate?: number;
   defaultAnim?: string;
+  curAnim?: string;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -81,10 +85,12 @@ export class Rn_SpriteSheet extends React.Component<Props, State> {
       [defAnim]: blankIAnim,
     };
 
+    // Setup initialState with default 0 values
+    // + currentAnimation if it exists
     this.state = {
       time: new Animated.Value(0.0),
       iAnims: iAnims,
-      curAnim: defAnim,
+      curAnim: this.props.curAnim ?? defAnim,
       height: defaultSize,
       width: defaultSize,
       loaded: false,
@@ -92,10 +98,12 @@ export class Rn_SpriteSheet extends React.Component<Props, State> {
     };
   }
 
+  // Kill animation when component unmounts
   componentWillUnmount() {
     this.stop();
   }
 
+  // Spritesheet animation - control animation state
   play = ({name, loop, iAnims}: PlayConfig) => {
     if (name) {
       this.setState(prev => ({
@@ -151,15 +159,47 @@ export class Rn_SpriteSheet extends React.Component<Props, State> {
       (layoutHeight / (img.height / this.props.rows));
 
     const iAnims: InternalAnims = {};
+    // Loop over each animation object and create the animation params
     for (let anim of this.props.anims) {
       const nFrames = anim.frames ?? this.props.cols; // default, assume entire row is animation
+      const outY = Rn_SpriteSheet.getOutY(
+        nFrames,
+        this.props.cols,
+        layoutHeight,
+      );
+      let outX = Rn_SpriteSheet.getOutX(nFrames, this.props.cols, width);
+      if (anim?.startFrame) {
+        // Get the width of each frame
+        // let animationFrameWidth = Math.abs(outX[1]); // index 0 will always be 0 so we need to ignore it.
+        outX.shift(); // remove first el since it's 0 and our start frame is not 0
+        // Get starting X pos for first frame
+        let startFrameXPos = outX[0] * anim.startFrame;
+        // Grab the rest of the frames and loop over them to get correct X positions.
+        let restOfFrames = outX.slice(2);
+        // Create new animation frames X positions arr
+        let newOutX = [startFrameXPos];
+        restOfFrames.map(xVal => {
+          newOutX.push(startFrameXPos + xVal);
+        });
+        // // Add last 2 frames since we removed the initial 0 X-position frame
+        newOutX.push(newOutX[newOutX.length - 1] + outX[0]);
+        newOutX.push(newOutX[newOutX.length - 2] + outX[0]);
+        outX = newOutX;
+      }
+      // Check if animation is flipped?
+      if (anim.flipAnimation) {
+        let newOutX = outX.map(xVal => {
+          return xVal * -1;
+        });
+        outX = newOutX;
+      }
 
       const iAnim: InternalAnim = {
         frames: nFrames,
         in: Rn_SpriteSheet.getTimeRange(nFrames),
-        outX: Rn_SpriteSheet.getOutX(nFrames, this.props.cols, width),
-        outY: Rn_SpriteSheet.getOutY(nFrames, this.props.cols, layoutHeight),
-        translateY: anim.row * layoutHeight,
+        outX: outX,
+        outY: outY,
+        translateY: -anim.row * layoutHeight,
         loop: anim.loop ?? true,
         reverse: anim.reverse ?? false,
         onComplete: anim.onComplete,
@@ -177,6 +217,7 @@ export class Rn_SpriteSheet extends React.Component<Props, State> {
     });
 
     this.state.autoplay && this.play({iAnims: iAnims});
+    console.log(iAnims);
   };
 
   render() {
@@ -195,6 +236,7 @@ export class Rn_SpriteSheet extends React.Component<Props, State> {
                 height: this.state.height * this.props.rows,
                 width: this.state.width * this.props.cols,
                 transform: [
+                  // {scaleX: -1},
                   {
                     translateX: this.state.time.interpolate({
                       inputRange: this.state.iAnims[this.state.curAnim].in,
