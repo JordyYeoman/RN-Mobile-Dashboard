@@ -5,6 +5,7 @@
   "scripts": {
     "android": "npx react-native run-android",
     "ios": "npx react-native run-ios",
+    "ios-dos": "npx react-native run-ios --port 9988",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
@@ -25,6 +26,7 @@
     "react": "18.0.0",
     "react-native": "0.69.1",
     "react-native-animated-sprite": "^0.11.1",
+    "react-native-draggable": "^3.3.0",
     "react-native-modal": "^13.0.1",
     "react-native-reanimated": "^2.9.1",
     "react-redux": "^8.0.2",
